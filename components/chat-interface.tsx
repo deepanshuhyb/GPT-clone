@@ -11,19 +11,15 @@ import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis";
 import { useTheme } from "next-themes";
 
 export default function ChatInterface() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat();
-
-  const [message, setMessage] = useState(""); // stores the current message
-  const [autoSpeak, setAutoSpeak] = useState(false); // toggles auto voice response
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
+  const [message, setMessage] = useState("");
+  const [autoSpeak, setAutoSpeak] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
-
-  // theme toggle setup
   const { theme, setTheme } = useTheme();
   const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => setIsMounted(true), []);
 
-  // speech recognition hooks
   const {
     isListening,
     transcript,
@@ -32,15 +28,12 @@ export default function ChatInterface() {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  // speech synthesis hooks
   const { speak, cancel, speaking } = useSpeechSynthesis();
 
-  // scroll to bottom when new message comes
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // if transcript updates, put it in input
   useEffect(() => {
     if (transcript) {
       handleInputChange({
@@ -49,7 +42,6 @@ export default function ChatInterface() {
     }
   }, [transcript, handleInputChange]);
 
-  // if auto-speak is on, speak the assistant's latest message
   useEffect(() => {
     const lastMsg = messages[messages.length - 1];
     if (autoSpeak && lastMsg?.role === "assistant" && !speaking) {
@@ -57,7 +49,6 @@ export default function ChatInterface() {
     }
   }, [messages, autoSpeak, speak, speaking]);
 
-  // handles form submit
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isListening) stopListening();
@@ -69,7 +60,6 @@ export default function ChatInterface() {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  // formats messages into code blocks or normal text
   const renderMessageContent = (content: string) => {
     const parts = [];
     const jsonBlockRegex = /(.*?)(^json\s*\{[\s\S]*?\})(.*)/gm;
@@ -103,10 +93,9 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col w-full max-w-screen-lg mx-auto h-screen text-sm">
-      {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-black">
         <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Bholu
+          GPT-Clone
         </h1>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
@@ -120,7 +109,6 @@ export default function ChatInterface() {
         </div>
       </header>
 
-      {/* Messages */}
       <main className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
@@ -135,25 +123,19 @@ export default function ChatInterface() {
             <h2 className="text-2xl font-bold mb-2">
               How can I help you today?
             </h2>
-            {/* <p className="text-gray-500 dark:text-gray-400 max-w-md">
-              Ask me anything from creative writing to technical coding help and
-              more.
-            </p> */}
           </div>
         ) : (
           messages.map((msg, index) => (
             <div
               key={index}
-              className={`flex ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
             >
               <div
-                className={`max-w-[80%] whitespace-pre-wrap rounded-lg px-4 py-3 text-sm ${
-                  msg.role === "user"
-                    ? "bg-[#2e63d2] text-white"
-                    : "bg-[#e8e8ea] dark:bg-[#444654] text-black dark:text-white"
-                }`}
+                className={`max-w-[80%] whitespace-pre-wrap rounded-lg px-4 py-3 text-sm ${msg.role === "user"
+                  ? "bg-[#2e63d2] text-white"
+                  : "bg-[#e8e8ea] dark:bg-[#444654] text-black dark:text-white"
+                  }`}
               >
                 {renderMessageContent(msg.content)}
               </div>
@@ -163,7 +145,6 @@ export default function ChatInterface() {
         <div ref={messageEndRef} />
       </main>
 
-      {/* Chat input */}
       <div className="p-4 bg-white dark:bg-[#40414f] border-t border-gray-300 dark:border-gray-700">
         <form onSubmit={handleFormSubmit} className="flex items-end gap-2">
           <Card className="flex-1 flex items-center p-2 bg-[#f7f7f8] dark:bg-[#343541] border-0">
@@ -220,8 +201,7 @@ export default function ChatInterface() {
           </Button>
         </form>
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center">
-          Bholu may produce inaccurate information. Always verify important
-          details.
+          GPT-Clone may produce inaccurate information. Always verify important details.
         </p>
       </div>
     </div>
